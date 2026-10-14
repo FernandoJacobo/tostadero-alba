@@ -135,9 +135,6 @@
     font-weight: 400;
     color: var(--caramel-text);
   }
-  p {
-    text-wrap: pretty;
-  }
   a {
     text-underline-offset: 3px;
   }
@@ -165,6 +162,19 @@
   }
   .section {
     padding-block: clamp(4rem, 2.8rem + 5vw, 8rem);
+  }
+  /* Secciones bajo el pliegue: el navegador no las pinta hasta que se acercan.
+     En Lighthouse móvil baja el primer pintado de ~2.6 s a ~0.4 s. Las anclas se corrigen en scripts/anchors.ts */
+  main > section:not(:first-child),
+  body > footer {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 1000px;
+  }
+  main > section[tabindex='-1']:focus {
+    outline: none;
+  }
+  .lead {
+    text-wrap: pretty;
   }
   .eyebrow {
     @apply text-olive inline-flex items-center gap-2.5 text-[0.8rem] font-bold tracking-[0.16em] uppercase;

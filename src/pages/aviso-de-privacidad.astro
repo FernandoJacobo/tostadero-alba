@@ -1,0 +1,61 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { site, fullAddress } from '@/config/site';
+
+const updated = '14 de octubre de 2026';
+---
+
+<BaseLayout
+  title="Aviso de privacidad"
+  description={`Aviso de privacidad simplificado de ${site.legalName}: qué datos usamos para reservaciones, pedidos y talleres, y cómo ejercer tus derechos ARCO.`}
+>
+  <article class="container-x pt-32 pb-20 md:pt-40">
+    <p class="eyebrow">Legal</p>
+    <h1 class="mt-4 max-w-3xl">Aviso de <em>privacidad</em></h1>
+    <p class="text-muted mt-4">Última actualización: {updated}</p>
+
+    <div class="prose-alba mt-10">
+      <p>
+        <strong>{site.legalName}</strong>, con domicilio en {fullAddress}, es responsable del uso de los datos personales que nos
+        compartas, conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.
+      </p>
+
+      <h2>Qué datos usamos</h2>
+      <p>
+        Este sitio no tiene formularios que envíen información a un servidor ni guarda tus datos. Cuando reservas, pides granos o te
+        apuntas a un taller, el formulario solo arma un mensaje que se abre en tu WhatsApp o en tu correo para que tú decidas enviarlo.
+        Al hacerlo, recibimos:
+      </p>
+      <ul>
+        <li>Nombre y número de teléfono o correo con el que nos escribes.</li>
+        <li>Datos de la reservación: fecha, hora, número de personas, ocasión y comentarios.</li>
+        <li>Datos del pedido o taller que elijas.</li>
+      </ul>
+
+      <h2>Para qué los usamos</h2>
+      <ul>
+        <li>Confirmar y administrar tu reservación, pedido o lugar en un taller.</li>
+        <li>Contactarte si hay algún cambio.</li>
+        <li>Solo si nos lo autorizas, avisarte de nuevos lotes de café o talleres.</li>
+      </ul>
+      <p>No vendemos ni compartimos tus datos con terceros, salvo las plataformas de mensajería que tú mismo elijas para escribirnos.</p>
+
+      <h2>Mapa y servicios de terceros</h2>
+      <p>
+        La sección de ubicación muestra un mapa de Google Maps que se carga cuando llegas a ella. Google puede usar cookies propias según
+        su política de privacidad. El sitio guarda en tu navegador solo tu preferencia de tema claro u oscuro.
+      </p>
+
+      <h2>Tus derechos ARCO</h2>
+      <p>
+        Puedes acceder, rectificar, cancelar u oponerte al uso de tus datos escribiendo a
+        <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>. Te responderemos en un máximo de 20 días hábiles.
+      </p>
+
+      <h2>Cambios a este aviso</h2>
+      <p>Cualquier cambio se publicará en esta página con su fecha de actualización.</p>
+
+      <p class="text-muted text-sm">{site.demoNotice} Este aviso es un ejemplo y debe revisarse con un profesional antes de usarse en un negocio real.</p>
+    </div>
+  </article>
+</BaseLayout>

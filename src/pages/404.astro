@@ -1,0 +1,18 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/ui/Icon.astro';
+import LogoMark from '@/components/ui/LogoMark.astro';
+---
+
+<BaseLayout title="Página no encontrada" description="La página que buscas no existe. Vuelve al inicio para ver el menú, los granos y reservar mesa." noindex>
+  <section class="container-x flex min-h-[80svh] flex-col items-center justify-center pt-32 pb-20 text-center">
+    <LogoMark size={88} class="text-heading" />
+    <p class="eyebrow mt-8 justify-center">Error 404</p>
+    <h1 class="mt-4 max-w-2xl">Esta taza <em>se nos enfrió</em></h1>
+    <p class="lead mt-5 max-w-lg">La página que buscas no existe o cambió de lugar. Mejor vuelve a la barra.</p>
+    <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+      <a href="/" class="btn btn-primary"><Icon name="house" size={18} /> Volver al inicio</a>
+      <a href="/#menu" class="btn btn-ghost"><Icon name="coffee" size={18} /> Ver el menú</a>
+    </div>
+  </section>
+</BaseLayout>

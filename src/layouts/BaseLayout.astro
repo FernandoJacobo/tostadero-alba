@@ -63,11 +63,14 @@ const schemas = jsonLd?.(ogUrl) ?? [];
         if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         document.documentElement.dataset.theme = t;
         document.documentElement.classList.add('js');
+        // Con #seccion en la URL, el salto inicial es inmediato (lo corrige scripts/anchors.ts)
+        if (location.hash.length > 1) document.documentElement.style.scrollBehavior = 'auto';
       })();
     </script>
 
-    <Font cssVariable="--font-fraunces" preload={[{ subset: 'latin', style: 'normal' }]} />
-    <Font cssVariable="--font-dmsans" preload={[{ subset: 'latin' }]} />
+    <!-- Solo se precargan las dos fuentes visibles en el hero; el resto se descarga al usarse -->
+    <Font cssVariable="--font-fraunces" preload={[{ subset: 'latin', style: 'normal', weight: 600 }]} />
+    <Font cssVariable="--font-dmsans" preload={[{ subset: 'latin', weight: 400 }]} />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.legalName} />
@@ -98,7 +101,9 @@ const schemas = jsonLd?.(ogUrl) ?? [];
 
     <script>
       import { initReveal } from '@/scripts/reveal';
+      import { initAnchors } from '@/scripts/anchors';
       initReveal();
+      initAnchors();
     </script>
   </body>
 </html>

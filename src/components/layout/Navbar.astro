@@ -23,7 +23,7 @@ const href = (h: string) => (home ? h : `/${h}`);
   class="group/header fixed inset-x-0 top-0 z-50 border-b border-transparent text-white transition-[background-color,border-color,color] duration-300 data-[scrolled]:border-border data-[scrolled]:bg-bg/85 data-[scrolled]:text-heading data-[scrolled]:backdrop-blur-xl"
 >
   <div class="container-x flex h-[4.5rem] items-center justify-between gap-4 md:h-20">
-    <a href={home ? '#inicio' : '/'} class="-m-1 rounded-xl p-1" aria-label={`${site.name}, ir al inicio`}>
+    <a href={home ? '#inicio' : '/'} class="-m-1 rounded-xl p-1" aria-label={`${site.name} ${site.tagline}, ir al inicio`}>
       <Logo class="[--logo-cut:#2b1d16] group-data-[scrolled]/header:[--logo-cut:var(--bg)]" />
     </a>
 

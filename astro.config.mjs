@@ -22,7 +22,8 @@ export default defineConfig({
       provider: fontProviders.fontsource(),
       name: 'Fraunces',
       cssVariable: '--font-fraunces',
-      weights: ['400 700'],
+      // Pesos estáticos (no el variable con ejes SOFT/WONK/opsz): ~4 veces menos bytes
+      weights: [400, 600],
       styles: ['normal', 'italic'],
       subsets: ['latin'],
       fallbacks: ['Georgia', 'serif'],
@@ -31,7 +32,7 @@ export default defineConfig({
       provider: fontProviders.fontsource(),
       name: 'DM Sans',
       cssVariable: '--font-dmsans',
-      weights: ['400 700'],
+      weights: [400, 600, 700],
       styles: ['normal'],
       subsets: ['latin'],
       fallbacks: ['system-ui', 'sans-serif'],
