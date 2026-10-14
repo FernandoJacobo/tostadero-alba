@@ -1,0 +1,100 @@
+---
+import { formatMXN, formatTime, whatsappUrl } from '@/config/site';
+import { workshops, workshopMessage } from '@/data/talleres';
+import { talleresIntro as c } from '@/data/contenido';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import Photo from '@/components/ui/Photo.astro';
+import Icon from '@/components/ui/Icon.astro';
+
+// Fechas "AAAA-MM-DD" interpretadas como fecha local (sin desfase de zona horaria)
+const asDate = (iso: string) => new Date(`${iso}T12:00:00Z`);
+const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) =>
+  new Intl.DateTimeFormat('es-MX', { ...opts, timeZone: 'UTC' }).format(asDate(iso));
+---
+
+<section id="talleres" class="section bg-espresso text-on-espresso relative overflow-hidden" aria-labelledby="talleres-title">
+  <div class="container-x">
+    <SectionHeading id="talleres-title" eyebrow={c.eyebrow} title={c.title} lead={c.lead} tone="dark" />
+
+    <ul class="mt-14 grid gap-6 lg:grid-cols-3" data-stagger="110">
+      {
+        workshops.map((w) => {
+          const left = w.capacity - w.booked;
+          const dateLong = fmt(w.date, { weekday: 'long', day: 'numeric', month: 'long' });
+          return (
+            <li class="flex flex-col overflow-hidden rounded-[1.5rem] bg-white/[0.06] ring-1 ring-white/10">
+              <div class="relative">
+                <Photo src={w.image} alt={w.imageAlt} ratio="16 / 10" sizes="(min-width: 1024px) 380px, 92vw" zoom />
+                <p class="bg-bg text-heading absolute top-4 left-4 flex min-w-16 flex-col items-center rounded-2xl px-3 py-2 leading-none shadow-lg">
+                  <span class="font-serif text-3xl font-semibold">{fmt(w.date, { day: 'numeric' })}</span>
+                  <span class="mt-1 text-xs font-bold tracking-widest uppercase">{fmt(w.date, { month: 'short' }).replace('.', '')}</span>
+                </p>
+              </div>
+              <div class="flex flex-1 flex-col p-6 sm:p-7">
+                <h3 class="!text-on-espresso text-[1.6rem]">{w.title}</h3>
+                <p class="text-on-espresso-muted mt-3">{w.description}</p>
+
+                <ul class="text-on-espresso mt-5 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                  <li class="col-span-2 flex items-center gap-2">
+                    <Icon name="calendar-days" size={16} class="text-[#e9b98a]" />
+                    <span class="first-letter:uppercase">{dateLong}</span>
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <Icon name="clock" size={16} class="text-[#e9b98a]" />
+                    {formatTime(w.start)}
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <Icon name="hourglass" size={16} class="text-[#e9b98a]" />
+                    {w.duration}
+                  </li>
+                  <li class="col-span-2 flex items-center gap-2">
+                    <Icon name="sparkles" size={16} class="text-[#e9b98a]" />
+                    {w.level}
+                  </li>
+                </ul>
+
+                <ul class="mt-5 flex flex-wrap gap-2" aria-label="Incluye">
+                  {w.includes.map((i) => (
+                    <li class="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">{i}</li>
+                  ))}
+                </ul>
+
+                <div class="mt-6">
+                  <div class="flex justify-between text-sm">
+                    <span class="font-semibold">{left <= 2 ? `¡Últimos ${left} lugares!` : `Quedan ${left} lugares`}</span>
+                    <span class="text-on-espresso-muted">Cupo {w.capacity}</span>
+                  </div>
+                  <div
+                    class="mt-2 h-2 overflow-hidden rounded-full bg-white/10"
+                    role="progressbar"
+                    aria-label={`Lugares apartados en ${w.title}`}
+                    aria-valuemin={0}
+                    aria-valuemax={w.capacity}
+                    aria-valuenow={w.booked}
+                    aria-valuetext={`${w.booked} de ${w.capacity} lugares apartados`}
+                  >
+                    <div class="h-full rounded-full bg-[#e9b98a]" style={`width:${(w.booked / w.capacity) * 100}%`} />
+                  </div>
+                </div>
+
+                <div class="mt-auto flex items-center justify-between gap-4 pt-7">
+                  <p class="font-serif text-3xl leading-none font-semibold text-[#e9b98a] tabular-nums">
+                    {formatMXN(w.price)}
+                    <span class="text-on-espresso-muted block font-sans text-sm font-normal">por persona</span>
+                  </p>
+                  <a href={whatsappUrl(workshopMessage(w, dateLong))} class="btn btn-primary px-5" rel="noopener" target="_blank">
+                    <Icon name="whatsapp" size={20} /> Apuntarme
+                    <span class="sr-only">{`al taller ${w.title} por WhatsApp`}</span>
+                  </a>
+                </div>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+    <p class="text-on-espresso-muted mt-8 flex items-center gap-2 text-sm" data-reveal>
+      <Icon name="gift" size={18} class="text-[#e9b98a]" /> ¿Grupo privado o regalo? Armamos talleres a la medida para empresas y celebraciones.
+    </p>
+  </div>
+</section>

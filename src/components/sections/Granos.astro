@@ -1,0 +1,106 @@
+---
+import { formatMXN, whatsappUrl } from '@/config/site';
+import { coffees, roastLabels, coffeeOrderMessage } from '@/data/granos';
+import { granosIntro as c } from '@/data/contenido';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import Photo from '@/components/ui/Photo.astro';
+import Icon from '@/components/ui/Icon.astro';
+---
+
+<section id="granos" class="section" aria-labelledby="granos-title">
+  <div class="container-x">
+    <SectionHeading id="granos-title" eyebrow={c.eyebrow} title={c.title} lead={c.lead} />
+
+    <ul class="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-stagger="110">
+      {
+        coffees.map((coffee) => (
+          <li class="card shadow-soft group flex flex-col overflow-hidden">
+            <div class="relative">
+              <Photo
+                src={coffee.image}
+                alt={coffee.imageAlt}
+                ratio="4 / 3"
+                sizes="(min-width: 1024px) 380px, (min-width: 768px) 46vw, 92vw"
+                zoom
+              />
+              {coffee.badge && (
+                <span class="bg-surface text-heading absolute top-4 left-4 rounded-full px-3 py-1 text-xs font-bold tracking-wide uppercase shadow">
+                  {coffee.badge}
+                </span>
+              )}
+            </div>
+
+            <div class="flex flex-1 flex-col p-6 sm:p-7">
+              <p class="text-olive flex items-center gap-1.5 text-sm font-semibold">
+                <Icon name="map-pin" size={15} /> {coffee.region}, {coffee.state}
+              </p>
+              <h3 class="mt-2 text-[1.75rem]">{coffee.name}</h3>
+
+              <dl class="border-border mt-5 grid grid-cols-3 gap-3 border-y py-4 text-sm">
+                <div>
+                  <dt class="text-muted text-xs tracking-wide uppercase">Altura</dt>
+                  <dd class="text-heading mt-0.5 font-semibold tabular-nums">{coffee.altitude}</dd>
+                </div>
+                <div>
+                  <dt class="text-muted text-xs tracking-wide uppercase">Proceso</dt>
+                  <dd class="text-heading mt-0.5 font-semibold">{coffee.process}</dd>
+                </div>
+                <div>
+                  <dt class="text-muted text-xs tracking-wide uppercase">Variedad</dt>
+                  <dd class="text-heading mt-0.5 font-semibold">{coffee.variety}</dd>
+                </div>
+              </dl>
+
+              <p class="text-muted mt-5 text-xs font-bold tracking-[0.14em] uppercase">Notas de cata</p>
+              <ul class="mt-2 flex flex-wrap gap-2">
+                {coffee.notes.map((n) => (
+                  <li class="chip">{n}</li>
+                ))}
+              </ul>
+
+              <div class="mt-5 flex items-center justify-between gap-4">
+                <p class="text-muted text-xs font-bold tracking-[0.14em] uppercase">Tueste</p>
+                <div class="flex items-center gap-3" role="img" aria-label={`Tueste ${roastLabels[coffee.roast].toLowerCase()}, ${coffee.roast} de 5`}>
+                  <span class="text-heading text-sm font-semibold">{roastLabels[coffee.roast]}</span>
+                  <span class="flex gap-1" aria-hidden="true">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <span
+                        class:list={['h-2.5 w-5 rounded-full', n <= coffee.roast ? 'roast-on' : 'bg-border']}
+                        style={n <= coffee.roast ? `--step:${n}` : undefined}
+                      />
+                    ))}
+                  </span>
+                </div>
+              </div>
+
+              <div class="mt-auto flex items-end justify-between gap-4 pt-7">
+                <p>
+                  <span class="price block font-serif text-3xl leading-none">{formatMXN(coffee.price)}</span>
+                  <span class="text-muted text-sm">bolsa de 250 g</span>
+                </p>
+                <a href={whatsappUrl(coffeeOrderMessage(coffee))} class="btn btn-wa px-5" rel="noopener" target="_blank">
+                  <Icon name="whatsapp" size={20} /> Pedir
+                  <span class="sr-only">{`el café ${coffee.name} por WhatsApp`}</span>
+                </a>
+              </div>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="text-muted mt-8 flex items-center gap-2 text-sm" data-reveal>
+      <Icon name="truck" size={18} class="text-olive" /> Envío local en Guadalajara y Zapopan desde $60. Recoge sin costo en barra.
+    </p>
+  </div>
+</section>
+
+<style>
+  /* Del caramelo claro al espresso: cada segmento representa un nivel de tueste */
+  .roast-on {
+    background: color-mix(in oklab, var(--caramel) calc(100% - (var(--step) - 1) * 18%), #2b1d16);
+  }
+  :global([data-theme='dark']) .roast-on {
+    background: color-mix(in oklab, var(--caramel) calc(100% - (var(--step) - 1) * 14%), #f6efe6);
+  }
+</style>

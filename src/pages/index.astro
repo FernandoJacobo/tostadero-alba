@@ -5,6 +5,9 @@ import Hero from '@/components/sections/Hero.astro';
 import Historia from '@/components/sections/Historia.astro';
 import Marquee from '@/components/sections/Marquee.astro';
 import Menu from '@/components/sections/Menu.astro';
+import Granos from '@/components/sections/Granos.astro';
+import Talleres from '@/components/sections/Talleres.astro';
+import Galeria from '@/components/sections/Galeria.astro';
 ---
 
 <BaseLayout home jsonLd={(og) => [businessSchema(og)]}>
@@ -12,4 +15,7 @@ import Menu from '@/components/sections/Menu.astro';
   <Historia />
   <Marquee />
   <Menu />
+  <Granos />
+  <Talleres />
+  <Galeria />
 </BaseLayout>

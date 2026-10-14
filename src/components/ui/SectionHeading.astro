@@ -7,14 +7,31 @@ interface Props {
   title: string;
   lead?: string;
   align?: 'left' | 'center';
+  /** "dark" para usar sobre fondos espresso */
+  tone?: 'default' | 'dark';
   class?: string;
 }
-const { id, eyebrow, title, lead, align = 'left', class: className = '' } = Astro.props;
+const { id, eyebrow, title, lead, align = 'left', tone = 'default', class: className = '' } = Astro.props;
 ---
 
-<div class:list={[align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl', className]} data-reveal>
+<div class:list={[align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl', tone === 'dark' && 'on-dark', className]} data-reveal>
   <p class:list={['eyebrow', align === 'center' && 'justify-center']}>{eyebrow}</p>
   <Title id={id} text={title} class="mt-4" />
   {lead && <p class="lead mt-5">{lead}</p>}
   <slot />
 </div>
+
+<style>
+  .on-dark :global(h2) {
+    color: var(--on-espresso);
+  }
+  .on-dark :global(h2 em) {
+    color: #e9b98a;
+  }
+  .on-dark .eyebrow {
+    color: #c9d39a;
+  }
+  .on-dark .lead {
+    color: var(--on-espresso-muted);
+  }
+</style>
