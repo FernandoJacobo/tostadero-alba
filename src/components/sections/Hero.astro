@@ -79,12 +79,12 @@ import OpenNow from '@/components/ui/OpenNow.astro';
 </section>
 
 <style>
-  .hero-title {
+  :global(.hero-title) {
     font-size: clamp(2.9rem, 1.6rem + 6.4vw, 7rem);
     font-weight: 600;
     line-height: 0.98;
   }
-  .hero-title :global(em) {
+  :global(.hero-title em) {
     color: #e9b98a;
   }
   @media (prefers-reduced-motion: no-preference) {
