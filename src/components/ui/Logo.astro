@@ -1,0 +1,22 @@
+---
+/** Wordmark: símbolo SVG + nombre en serif (texto real, accesible y nítido en cualquier tamaño). */
+import { site } from '@/config/site';
+import LogoMark from './LogoMark.astro';
+
+interface Props {
+  class?: string;
+  /** Muestra la línea "Café de especialidad" debajo del nombre */
+  withTagline?: boolean;
+}
+const { class: className = '', withTagline = true } = Astro.props;
+---
+
+<span class:list={['inline-flex items-center gap-2.5', className]}>
+  <LogoMark size={38} />
+  <span class="flex flex-col leading-none">
+    <span class="font-serif text-[1.35rem] font-semibold tracking-[-0.02em]">
+      {site.name.split(' ')[0]} <em class="font-normal">{site.name.split(' ').slice(1).join(' ')}</em>
+    </span>
+    {withTagline && <span class="mt-1 text-[0.62rem] font-bold tracking-[0.22em] uppercase opacity-75">{site.tagline}</span>}
+  </span>
+</span>

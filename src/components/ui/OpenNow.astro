@@ -1,0 +1,66 @@
+---
+/**
+ * Indicador "Abierto ahora · Cierra a las 9:00 p. m." calculado en el navegador
+ * con los horarios de site.ts y la zona horaria del negocio. Sin JS muestra el horario de hoy genérico.
+ */
+import { site } from '@/config/site';
+
+interface Props {
+  class?: string;
+  tone?: 'default' | 'dark';
+}
+const { class: className = '', tone = 'default' } = Astro.props;
+const data = JSON.stringify({ hours: site.hours, tz: site.timeZone });
+---
+
+<p
+  class:list={[
+    'open-now inline-flex min-h-8 items-center gap-2 rounded-full px-3.5 py-1 text-sm font-semibold backdrop-blur-sm',
+    tone === 'dark' ? 'bg-black/35 text-white ring-1 ring-white/20' : 'bg-surface-alt text-heading',
+    className,
+  ]}
+  data-open-now={data}
+>
+  <span class="dot relative inline-flex size-2.5 rounded-full bg-current opacity-60" aria-hidden="true"></span>
+  <span class="label">Consulta nuestro horario</span>
+</p>
+
+<style>
+  .open-now[data-state='open'] .dot {
+    background: #4ade80;
+    opacity: 1;
+    box-shadow: 0 0 0 4px rgb(74 222 128 / 0.25);
+  }
+  .open-now[data-state='closed'] .dot {
+    background: #fb923c;
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .open-now[data-state='open'] .dot::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: #4ade80;
+      animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+  }
+  @keyframes ping {
+    75%,
+    100% {
+      transform: scale(2.4);
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  import { openStatus } from '@/lib/hours';
+
+  document.querySelectorAll<HTMLElement>('[data-open-now]').forEach((el) => {
+    const { hours, tz } = JSON.parse(el.dataset.openNow!);
+    const status = openStatus(hours, tz);
+    el.dataset.state = status.open ? 'open' : 'closed';
+    el.querySelector('.label')!.textContent = status.label;
+  });
+</script>

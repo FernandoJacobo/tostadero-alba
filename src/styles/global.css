@@ -1,0 +1,327 @@
+@import 'tailwindcss';
+
+/* Modo oscuro controlado por data-theme en <html> (script inline en BaseLayout). */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ───────────── Design tokens ─────────────
+   Cambia la paleta aquí: los componentes solo usan estos tokens. */
+:root {
+  --bg: #f6efe6;
+  --surface: #fffaf3;
+  --surface-alt: #efe4d6;
+  --espresso: #2b1d16;
+  --on-espresso: #f6efe6;
+  --on-espresso-muted: #cdbcab;
+  --caramel: #c27a3e;
+  --caramel-hover: #b06c33;
+  --on-caramel: #2b1d16;
+  /* Caramelo oscurecido para texto sobre crema (contraste AA) */
+  --caramel-text: #96561f;
+  --olive: #5e6b3c;
+  --olive-soft: #e3e3cc;
+  --ink: #2a211c;
+  --heading: #2b1d16;
+  --muted: #6f6056;
+  --border: #e4d6c5;
+  --ring: #96561f;
+  --shadow: 43 29 22;
+  --grain-opacity: 0.035;
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #17100c;
+  --surface: #221812;
+  --surface-alt: #2c2018;
+  --espresso: #0f0a07;
+  --on-espresso: #f3e9dc;
+  --on-espresso-muted: #bfae9c;
+  --caramel: #d38c4f;
+  --caramel-hover: #e09d62;
+  --on-caramel: #1a110c;
+  --caramel-text: #e3a46a;
+  --olive: #a9b77d;
+  --olive-soft: #2c2f1d;
+  --ink: #efe4d6;
+  --heading: #f6efe6;
+  --muted: #bcab99;
+  --border: #3a2a20;
+  --ring: #e3a46a;
+  --shadow: 0 0 0;
+  --grain-opacity: 0.05;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-espresso: var(--espresso);
+  --color-on-espresso: var(--on-espresso);
+  --color-on-espresso-muted: var(--on-espresso-muted);
+  --color-caramel: var(--caramel);
+  --color-caramel-hover: var(--caramel-hover);
+  --color-on-caramel: var(--on-caramel);
+  --color-caramel-text: var(--caramel-text);
+  --color-olive: var(--olive);
+  --color-olive-soft: var(--olive-soft);
+  --color-ink: var(--ink);
+  --color-heading: var(--heading);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-dmsans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), Georgia, serif;
+
+  --radius-card: 1.5rem;
+
+  --shadow-soft: 0 1px 2px rgb(var(--shadow) / 0.05), 0 10px 30px -12px rgb(var(--shadow) / 0.18);
+  --shadow-lift: 0 2px 4px rgb(var(--shadow) / 0.06), 0 24px 48px -16px rgb(var(--shadow) / 0.3);
+}
+
+/* ───────────── Base ───────────── */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5.5rem;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    font-size: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+    line-height: 1.65;
+    overflow-x: clip;
+  }
+  /* Textura de grano sutil sobre todo el sitio (SVG inline, sin petición extra) */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-serif text-heading;
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    font-optical-sizing: auto;
+  }
+  h1 {
+    font-size: clamp(2.6rem, 1.6rem + 5vw, 5.6rem);
+    letter-spacing: -0.03em;
+  }
+  h2 {
+    font-size: clamp(2rem, 1.4rem + 2.8vw, 3.5rem);
+  }
+  h3 {
+    font-size: clamp(1.25rem, 1.12rem + 0.5vw, 1.5rem);
+    line-height: 1.2;
+  }
+  /* Palabras clave en cursiva serif (ver <Title />) */
+  h1 em,
+  h2 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--caramel-text);
+  }
+  p {
+    text-wrap: pretty;
+  }
+  a {
+    text-underline-offset: 3px;
+  }
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 3px;
+    border-radius: 8px;
+  }
+  ::selection {
+    background: var(--caramel);
+    color: var(--on-caramel);
+  }
+  img {
+    height: auto;
+  }
+}
+
+/* ───────────── Componentes utilitarios ───────────── */
+@layer components {
+  .container-x {
+    width: 100%;
+    max-width: 78rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 0.5rem + 2.4vw, 2.5rem);
+  }
+  .section {
+    padding-block: clamp(4rem, 2.8rem + 5vw, 8rem);
+  }
+  .eyebrow {
+    @apply text-olive inline-flex items-center gap-2.5 text-[0.8rem] font-bold tracking-[0.16em] uppercase;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 1.75rem;
+    height: 1px;
+    background: currentColor;
+  }
+  .lead {
+    @apply text-muted;
+    font-size: clamp(1.05rem, 1rem + 0.35vw, 1.25rem);
+  }
+  .price {
+    font-variant-numeric: tabular-nums;
+    @apply text-caramel-text font-bold;
+  }
+
+  .btn {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-[0.975rem] font-semibold whitespace-nowrap transition-[background-color,color,border-color,transform] duration-200;
+  }
+  .btn:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    @apply bg-caramel text-on-caramel hover:bg-caramel-hover;
+  }
+  .btn-dark {
+    @apply bg-espresso text-on-espresso hover:bg-[#3d2a20];
+  }
+  [data-theme='dark'] .btn-dark {
+    @apply bg-surface-alt hover:bg-[#3a2a20];
+  }
+  .btn-ghost {
+    @apply border-border text-heading hover:border-caramel border bg-transparent;
+  }
+  .btn-light {
+    @apply border border-white/40 text-white hover:bg-white/10;
+  }
+  .btn-wa {
+    @apply bg-[#1f7a46] text-white hover:bg-[#186338];
+  }
+
+  .card {
+    @apply bg-surface border-border rounded-card border;
+  }
+
+  /* Etiqueta tipo sello */
+  .tag {
+    @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[0.72rem] font-bold tracking-wide uppercase;
+  }
+  .tag-olive {
+    @apply border-olive/40 text-olive;
+  }
+  .tag-caramel {
+    @apply border-caramel/50 text-caramel-text;
+  }
+  .chip {
+    @apply bg-surface-alt text-heading inline-flex items-center rounded-full px-3 py-1 text-sm font-medium;
+  }
+
+  .field {
+    @apply bg-surface border-border text-ink placeholder:text-muted block min-h-12 w-full rounded-2xl border px-4 py-3 transition-colors;
+  }
+  .field:focus {
+    @apply border-caramel outline-none;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--caramel) 30%, transparent);
+  }
+  .field[aria-invalid='true'] {
+    border-color: #b42318;
+  }
+  [data-theme='dark'] .field[aria-invalid='true'] {
+    border-color: #f97066;
+  }
+  .field-error {
+    @apply mt-1.5 text-sm font-medium text-[#b42318] dark:text-[#fda29b];
+  }
+
+  .skip-link {
+    @apply bg-espresso text-on-espresso fixed top-3 left-3 z-[100] -translate-y-24 rounded-full px-5 py-3 font-semibold transition-transform focus:translate-y-0;
+  }
+
+  /* Fondo cálido para fotos mientras cargan o si fallan */
+  .img-fallback {
+    background:
+      radial-gradient(circle at 30% 25%, color-mix(in oklab, var(--caramel) 35%, transparent) 0, transparent 55%),
+      radial-gradient(circle at 75% 80%, color-mix(in oklab, var(--olive) 30%, transparent) 0, transparent 55%), var(--surface-alt);
+  }
+
+  /* Zoom suave en fotos al pasar el cursor */
+  .zoom-img img {
+    transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .zoom-img:hover img,
+    .zoom-trigger:hover .zoom-img img,
+    .zoom-trigger:focus-visible .zoom-img img {
+      transform: scale(1.05);
+    }
+  }
+
+  /* Contenido largo (aviso de privacidad) */
+  .prose-alba {
+    max-width: 68ch;
+  }
+  .prose-alba > * + * {
+    margin-top: 1.1em;
+  }
+  .prose-alba h2 {
+    font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+    margin-top: 2em;
+  }
+  .prose-alba a {
+    @apply text-caramel-text underline;
+  }
+  .prose-alba ul {
+    list-style: disc;
+    padding-left: 1.3em;
+  }
+  .prose-alba li + li {
+    margin-top: 0.4em;
+  }
+  .prose-alba strong {
+    @apply text-heading font-semibold;
+  }
+}
+
+/* ───────────── Animaciones de entrada (stagger) ─────────────
+   Solo se ocultan si hay JS y el usuario no pidió menos movimiento. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal].reveal-pending {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  [data-reveal] {
+    transition:
+      opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

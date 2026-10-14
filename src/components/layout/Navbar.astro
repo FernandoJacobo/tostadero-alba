@@ -1,0 +1,173 @@
+---
+/**
+ * Navbar fija: transparente sobre el hero oscuro y con fondo + blur al hacer scroll.
+ * Enlaces ancla con scroll-spy (aria-current="location") y menú móvil tipo drawer con <dialog>.
+ */
+import { site } from '@/config/site';
+import Logo from '@/components/ui/Logo.astro';
+import Icon from '@/components/ui/Icon.astro';
+import ThemeToggle from './ThemeToggle.astro';
+
+interface Props {
+  /** true en la landing: empieza transparente sobre el hero y los enlaces son anclas locales */
+  home?: boolean;
+}
+const { home = false } = Astro.props;
+const href = (h: string) => (home ? h : `/${h}`);
+---
+
+<header
+  id="site-header"
+  data-home={home ? '' : undefined}
+  data-scrolled={home ? undefined : ''}
+  class="group/header fixed inset-x-0 top-0 z-50 border-b border-transparent text-white transition-[background-color,border-color,color] duration-300 data-[scrolled]:border-border data-[scrolled]:bg-bg/85 data-[scrolled]:text-heading data-[scrolled]:backdrop-blur-xl"
+>
+  <div class="container-x flex h-[4.5rem] items-center justify-between gap-4 md:h-20">
+    <a href={home ? '#inicio' : '/'} class="-m-1 rounded-xl p-1" aria-label={`${site.name}, ir al inicio`}>
+      <Logo class="[--logo-cut:#2b1d16] group-data-[scrolled]/header:[--logo-cut:var(--bg)]" />
+    </a>
+
+    <nav aria-label="Principal" class="hidden lg:block">
+      <ul class="flex items-center gap-0.5">
+        {
+          site.nav.map((item) => (
+            <li>
+              <a
+                href={href(item.href)}
+                data-spy={item.href.slice(1)}
+                class="relative inline-flex min-h-11 items-center rounded-full px-3.5 text-[0.95rem] font-medium opacity-85 transition-opacity hover:opacity-100 aria-[current=location]:opacity-100 aria-[current=location]:after:absolute aria-[current=location]:after:inset-x-3.5 aria-[current=location]:after:bottom-1.5 aria-[current=location]:after:h-0.5 aria-[current=location]:after:rounded-full aria-[current=location]:after:bg-[var(--caramel)]"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-1 sm:gap-2">
+      <ThemeToggle />
+      <a href={href(site.cta.href)} class="btn btn-primary hidden min-h-11 px-5 sm:inline-flex">
+        <Icon name="calendar-heart" size={18} />
+        {site.cta.label}
+      </a>
+      <button
+        type="button"
+        class="inline-flex size-11 items-center justify-center rounded-full hover:bg-white/10 group-data-[scrolled]/header:hover:bg-surface-alt lg:hidden"
+        aria-label="Abrir menú"
+        aria-controls="mobile-menu"
+        aria-expanded="false"
+        aria-haspopup="dialog"
+        data-menu-open
+      >
+        <Icon name="menu" size={24} />
+      </button>
+    </div>
+  </div>
+</header>
+
+<dialog
+  id="mobile-menu"
+  aria-label="Menú"
+  class="bg-bg text-ink m-0 ms-auto h-dvh max-h-none w-[min(22rem,88vw)] max-w-none p-0 shadow-2xl backdrop:bg-[#17100c]/60 backdrop:backdrop-blur-sm"
+>
+  <div class="flex h-full flex-col">
+    <div class="border-border flex h-[4.5rem] items-center justify-between border-b px-5">
+      <span class="text-heading font-serif text-xl font-semibold">Menú</span>
+      <button
+        type="button"
+        class="hover:bg-surface-alt inline-flex size-11 items-center justify-center rounded-full"
+        aria-label="Cerrar menú"
+        data-menu-close
+      >
+        <Icon name="x" size={24} />
+      </button>
+    </div>
+    <nav aria-label="Móvil" class="flex-1 overflow-y-auto px-3 py-4">
+      <ul class="space-y-1">
+        {
+          site.nav.map((item, i) => (
+            <li>
+              <a
+                href={href(item.href)}
+                class="hover:bg-surface-alt flex min-h-13 items-center gap-4 rounded-2xl px-4 font-serif text-2xl"
+              >
+                <span class="text-caramel-text font-sans text-xs font-bold tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div class="border-border space-y-3 border-t p-5">
+      <a href={href(site.cta.href)} class="btn btn-primary w-full">
+        <Icon name="calendar-heart" size={18} />
+        {site.cta.label}
+      </a>
+      <a href={`tel:${site.contact.phone}`} class="btn btn-ghost w-full">
+        <Icon name="phone" size={18} />
+        {site.contact.phoneDisplay}
+      </a>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  dialog[open] {
+    animation: drawer-in 0.32s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  @keyframes drawer-in {
+    from {
+      transform: translateX(100%);
+    }
+  }
+</style>
+
+<script>
+  const header = document.getElementById('site-header')!;
+  const dialog = document.getElementById('mobile-menu') as HTMLDialogElement;
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]')!;
+
+  // Fondo con blur al hacer scroll (solo en la landing; en otras páginas siempre visible)
+  if (header.hasAttribute('data-home')) {
+    const onScroll = () => header.toggleAttribute('data-scrolled', window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  // Drawer móvil
+  openBtn.addEventListener('click', () => {
+    dialog.showModal();
+    openBtn.setAttribute('aria-expanded', 'true');
+  });
+  dialog.addEventListener('close', () => openBtn.setAttribute('aria-expanded', 'false'));
+  dialog.querySelector('[data-menu-close]')!.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+  dialog.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => dialog.close()));
+
+  // Scroll-spy: marca el enlace de la sección que ocupa la parte central de la pantalla
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-spy]')];
+  const sections = links.map((l) => document.getElementById(l.dataset.spy!)).filter((s): s is HTMLElement => !!s);
+  if (sections.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          links.forEach((l) => (l.dataset.spy === e.target.id ? l.setAttribute('aria-current', 'location') : l.removeAttribute('aria-current')));
+        }
+      },
+      { rootMargin: '-45% 0px -50% 0px' },
+    );
+    sections.forEach((s) => io.observe(s));
+    // Al volver al hero, ningún enlace activo
+    const hero = document.getElementById('inicio');
+    if (hero) {
+      new IntersectionObserver(([e]) => e.isIntersecting && links.forEach((l) => l.removeAttribute('aria-current')), {
+        rootMargin: '-45% 0px -50% 0px',
+      }).observe(hero);
+    }
+  }
+</script>

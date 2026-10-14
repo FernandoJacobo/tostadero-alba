@@ -1,0 +1,33 @@
+---
+/** Botón flotante de WhatsApp y, en móvil, barra inferior con "Cómo llegar" y "Reservar". */
+import { site, mapLinkUrl, whatsappUrl } from '@/config/site';
+import Icon from '@/components/ui/Icon.astro';
+
+interface Props {
+  home?: boolean;
+}
+const { home = false } = Astro.props;
+const waText = `¡Hola, ${site.name}! Tengo una pregunta.`;
+---
+
+<a
+  href={whatsappUrl(waText)}
+  class="btn-wa fixed right-4 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-40 inline-flex size-14 items-center justify-center rounded-full shadow-lg ring-4 ring-white/40 transition-transform hover:scale-105 md:right-6 md:bottom-6 dark:ring-black/30"
+  aria-label="Escríbenos por WhatsApp"
+  rel="noopener"
+  target="_blank"
+>
+  <Icon name="whatsapp" size={28} />
+</a>
+
+<nav
+  aria-label="Acciones rápidas"
+  class="border-border bg-bg/92 fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 gap-2 border-t px-3 pt-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden"
+>
+  <a href={mapLinkUrl} class="btn btn-ghost min-h-11 px-3" rel="noopener" target="_blank">
+    <Icon name="navigation" size={18} /> Cómo llegar
+  </a>
+  <a href={home ? site.cta.href : `/${site.cta.href}`} class="btn btn-primary min-h-11 px-3">
+    <Icon name="calendar-heart" size={18} /> Reservar
+  </a>
+</nav>

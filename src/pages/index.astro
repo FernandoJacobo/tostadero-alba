@@ -1,0 +1,8 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { businessSchema } from '@/lib/schema';
+---
+
+<BaseLayout home jsonLd={(og) => [businessSchema(og)]}>
+  <section id="inicio" class="bg-espresso text-on-espresso min-h-dvh"></section>
+</BaseLayout>

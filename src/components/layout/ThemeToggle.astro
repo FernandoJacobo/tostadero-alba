@@ -1,0 +1,44 @@
+---
+import Icon from '@/components/ui/Icon.astro';
+---
+
+<button
+  type="button"
+  class="theme-toggle hover:bg-surface-alt inline-flex size-11 items-center justify-center rounded-full transition-colors"
+  aria-label="Cambiar a modo oscuro"
+  data-theme-toggle
+>
+  <Icon name="moon" size={20} class="icon-moon" />
+  <Icon name="sun" size={20} class="icon-sun" />
+</button>
+
+<style>
+  .theme-toggle :global(.icon-sun) {
+    display: none;
+  }
+  :global([data-theme='dark']) .theme-toggle :global(.icon-sun) {
+    display: block;
+  }
+  :global([data-theme='dark']) .theme-toggle :global(.icon-moon) {
+    display: none;
+  }
+</style>
+
+<script>
+  // Delegación: un solo listener global para todos los botones de tema
+  const root = document.documentElement;
+  const syncLabels = () =>
+    document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) =>
+      btn.setAttribute('aria-label', root.dataset.theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'),
+    );
+  document.addEventListener('click', (e) => {
+    if (!(e.target as Element).closest?.('[data-theme-toggle]')) return;
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch {}
+    syncLabels();
+  });
+  syncLabels();
+</script>

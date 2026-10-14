@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tostadero-alba.pages.dev/sitemap-index.xml

@@ -1,0 +1,115 @@
+---
+import { site, fullAddress, formatTime, dayOrder, dayLabels } from '@/config/site';
+import Logo from '@/components/ui/Logo.astro';
+import Icon from '@/components/ui/Icon.astro';
+
+interface Props {
+  home?: boolean;
+}
+const { home = false } = Astro.props;
+const href = (h: string) => (home ? h : `/${h}`);
+const year = new Date().getFullYear();
+
+// Resumen compacto: agrupa días consecutivos con el mismo horario ("Lunes a jueves · 7:30 a. m. – 9:00 p. m.")
+const groups: { from: string; to: string; text: string }[] = [];
+for (const d of dayOrder) {
+  const slots = site.hours[d];
+  const text = slots.length ? slots.map((s) => `${formatTime(s.open)} – ${formatTime(s.close)}`).join(', ') : 'Cerrado';
+  const last = groups.at(-1);
+  if (last && last.text === text) last.to = dayLabels[d];
+  else groups.push({ from: dayLabels[d], to: dayLabels[d], text });
+}
+---
+
+<footer class="bg-espresso text-on-espresso relative overflow-hidden">
+  <div class="container-x grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] lg:py-20">
+    <div>
+      <a href={home ? '#inicio' : '/'} class="inline-block rounded-xl [--logo-cut:var(--espresso)]" aria-label={`${site.name}, ir al inicio`}>
+        <Logo />
+      </a>
+      <p class="text-on-espresso-muted mt-5 max-w-xs font-serif text-xl italic">{site.slogan}</p>
+      <ul class="mt-6 flex gap-2" aria-label="Redes sociales">
+        {
+          site.social.map((s) => (
+            <li>
+              <a
+                href={s.href}
+                class="inline-flex size-11 items-center justify-center rounded-full ring-1 ring-white/20 transition-colors hover:bg-white/10"
+                aria-label={`${site.name} en ${s.label}`}
+                rel="noopener"
+                target="_blank"
+              >
+                <Icon name={s.icon} size={20} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <nav aria-label="Pie de página">
+      <h2 class="text-on-espresso font-sans text-sm font-bold tracking-[0.16em] uppercase">Explora</h2>
+      <ul class="mt-4 space-y-1">
+        {
+          site.nav.map((n) => (
+            <li>
+              <a href={href(n.href)} class="text-on-espresso-muted inline-flex min-h-10 items-center hover:text-white">
+                {n.label}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a href={href(site.cta.href)} class="text-on-espresso-muted inline-flex min-h-10 items-center hover:text-white">{site.cta.label}</a>
+        </li>
+      </ul>
+    </nav>
+
+    <div>
+      <h2 class="text-on-espresso font-sans text-sm font-bold tracking-[0.16em] uppercase">Horario</h2>
+      <dl class="mt-4 space-y-3 text-sm">
+        {
+          groups.map((g) => (
+            <div>
+              <dt class="font-semibold">{g.from === g.to ? g.from : `${g.from} a ${g.to.toLowerCase()}`}</dt>
+              <dd class="text-on-espresso-muted">{g.text}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+
+    <div>
+      <h2 class="text-on-espresso font-sans text-sm font-bold tracking-[0.16em] uppercase">Contacto</h2>
+      <address class="text-on-espresso-muted mt-4 space-y-3 text-sm not-italic">
+        <p class="flex gap-2.5"><Icon name="map-pin" size={18} class="mt-0.5" />{fullAddress}</p>
+        <p>
+          <a href={`tel:${site.contact.phone}`} class="inline-flex min-h-10 items-center gap-2.5 hover:text-white">
+            <Icon name="phone" size={18} />{site.contact.phoneDisplay}
+          </a>
+        </p>
+        <p>
+          <a href={`mailto:${site.contact.email}`} class="inline-flex min-h-10 items-center gap-2.5 break-all hover:text-white">
+            <Icon name="mail" size={18} />{site.contact.email}
+          </a>
+        </p>
+      </address>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10">
+    <div class="container-x text-on-espresso-muted flex flex-col gap-3 py-6 text-sm md:flex-row md:items-center md:justify-between">
+      <p>© {year} {site.legalName}. <a href="/aviso-de-privacidad" class="underline hover:text-white">Aviso de privacidad</a></p>
+      <p class="flex items-start gap-2"><Icon name="info" size={16} class="mt-0.5" />{site.demoNotice}</p>
+    </div>
+  </div>
+
+  <!-- Cintilla de crédito -->
+  <div class="bg-caramel text-on-caramel">
+    <p class="container-x py-2.5 text-center text-sm font-semibold">
+      <a href={site.credit.href} class="hover:underline" rel="noopener">
+        {site.credit.label} · {site.credit.display}
+      </a>
+    </p>
+  </div>
+</footer>

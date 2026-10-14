@@ -1,0 +1,14 @@
+---
+/** Título con palabras clave en cursiva: "Aparta tu *mesa*" → Aparta tu <em>mesa</em>. */
+interface Props {
+  as?: 'h1' | 'h2' | 'h3';
+  text: string;
+  id?: string;
+  class?: string;
+}
+const { as: Tag = 'h2', text, id, class: className } = Astro.props;
+const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const html = escape(text).replace(/\*(.+?)\*/g, '<em>$1</em>');
+---
+
+<Tag id={id} class={className} set:html={html} />
