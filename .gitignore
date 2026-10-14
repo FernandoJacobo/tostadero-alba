@@ -26,3 +26,9 @@ pnpm-debug.log*
 # lighthouse / capturas locales
 .lighthouse/
 
+
+# frames temporales de los videos para redes
+social/_frames/
+# material pesado para redes: se regenera con npm run social
+social/capturas/
+social/video/

@@ -79,6 +79,20 @@ Los horarios de `site.ts` alimentan a la vez el indicador "Abierto ahora", la ta
 - **Footer** con redes, navegación, horario resumido, aviso de privacidad, aviso de datos ficticios y la cintilla "Demo desarrollado por JacoboDev · jacobodev.pages.dev".
 - En móvil, **barra inferior** con "Cómo llegar" y "Reservar", y botón flotante de WhatsApp en todas las pantallas.
 
+## Contenido para redes
+
+Con el sitio corriendo (`npm run build` y `npm run preview`), `npm run social` genera el material en `social/`:
+
+| Carpeta | Contenido |
+| --- | --- |
+| `social/capturas/` | Capturas en celular (@3x) y escritorio (@2x), en tema claro y oscuro: menú, granos, talleres, galería con lightbox y reservación llena |
+| `social/posts/` | Dos posts de 1080×1350 y una story de 1080×1920 |
+| `social/carrusel/` | Carrusel de 8 slides de 1080×1350 |
+| `social/video/` | Dos reels de 1080×1920 (interacciones y recorrido) y un recorrido de 1920×1080, en MP4 H.264 con portada JPG |
+| `social/copys.md` | Textos para Instagram, TikTok, LinkedIn y Facebook/WhatsApp |
+
+Se puede correr una sola etapa (`npm run social -- capture`, `compose` o `video`) o apuntar a otra URL con `--base=https://…`. Los videos se graban cuadro por cuadro con Chrome (`puppeteer-core`; usa el Chrome instalado o `CHROME_PATH`) y se codifican con `ffmpeg-static`. Durante la grabación se desactiva `content-visibility` para que el scroll sea exacto.
+
 ## SEO local
 
 - `title`, `description`, `canonical`, Open Graph y Twitter con imagen de 1200×630 generada en build. `lang="es-MX"`.
