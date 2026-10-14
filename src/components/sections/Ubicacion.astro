@@ -1,0 +1,110 @@
+---
+import { site, fullAddress, mapEmbedUrl, mapLinkUrl, wazeUrl, dayOrder, dayLabels, formatTime } from '@/config/site';
+import { ubicacionIntro as c } from '@/data/contenido';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import OpenNow from '@/components/ui/OpenNow.astro';
+import Icon from '@/components/ui/Icon.astro';
+
+const facts = [
+  { icon: 'car', title: 'Estacionamiento', text: site.address.parking },
+  { icon: 'accessibility', title: 'Accesibilidad', text: site.address.accessibility },
+  { icon: 'train-front', title: 'Transporte', text: site.address.transit },
+];
+---
+
+<section id="visitanos" class="section bg-surface-alt" aria-labelledby="visitanos-title">
+  <div class="container-x">
+    <SectionHeading id="visitanos-title" eyebrow={c.eyebrow} title={c.title}>
+      <p class="lead mt-5">{fullAddress}</p>
+      <p class="text-muted mt-1 text-sm">{site.address.reference}</p>
+    </SectionHeading>
+
+    <div class="mt-12 grid gap-8 lg:grid-cols-[1.35fr_1fr]">
+      <div class="flex flex-col gap-4" data-reveal>
+        <div class="bg-surface border-border relative min-h-80 flex-1 overflow-hidden rounded-[1.75rem] border">
+          <iframe
+            src={mapEmbedUrl}
+            title={`Mapa con la ubicación de ${site.name}`}
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            class="absolute inset-0 size-full border-0 dark:opacity-90 dark:[filter:invert(0.9)_hue-rotate(180deg)_saturate(0.6)]"
+          ></iframe>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <a href={mapLinkUrl} class="btn btn-dark" rel="noopener" target="_blank">
+            <Icon name="map" size={18} /> Abrir en Google Maps
+          </a>
+          <a href={wazeUrl} class="btn btn-ghost" rel="noopener" target="_blank">
+            <Icon name="navigation" size={18} /> Abrir en Waze
+          </a>
+        </div>
+      </div>
+
+      <div class="space-y-6" data-reveal style="--reveal-delay:120ms">
+        <div class="card p-6 sm:p-7">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h3 class="flex items-center gap-2"><Icon name="clock" size={22} class="text-caramel-text" /> Horario</h3>
+            <OpenNow />
+          </div>
+          <table class="mt-5 w-full text-[0.95rem]" data-hours-table={JSON.stringify({ tz: site.timeZone })}>
+            <caption class="sr-only">Horario de atención por día</caption>
+            <tbody>
+              {
+                dayOrder.map((d) => (
+                  <tr class="border-border border-b last:border-0 data-[today]:font-bold" data-day={d}>
+                    <th scope="row" class="py-2.5 text-left font-medium">
+                      {dayLabels[d]}
+                      <span class="today-badge bg-caramel text-on-caramel ml-2 hidden rounded-full px-2 py-0.5 text-[0.65rem] font-bold tracking-wide uppercase">
+                        Hoy
+                      </span>
+                    </th>
+                    <td class="py-2.5 text-right tabular-nums">
+                      {site.hours[d].length
+                        ? site.hours[d].map((s) => `${formatTime(s.open)} – ${formatTime(s.close)}`).join(', ')
+                        : 'Cerrado'}
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <ul class="space-y-4">
+          {
+            facts.map((f) => (
+              <li class="flex gap-4">
+                <span class="bg-surface text-olive inline-flex size-11 shrink-0 items-center justify-center rounded-2xl">
+                  <Icon name={f.icon} size={22} />
+                </span>
+                <div>
+                  <h3 class="font-sans text-base font-bold">{f.title}</h3>
+                  <p class="text-muted text-[0.95rem]">{f.text}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  tr[data-today] .today-badge {
+    display: inline-block;
+  }
+  tr[data-today] {
+    color: var(--heading);
+  }
+</style>
+
+<script>
+  import { dayKeys, nowIn } from '@/lib/hours';
+
+  document.querySelectorAll<HTMLTableElement>('[data-hours-table]').forEach((table) => {
+    const { tz } = JSON.parse(table.dataset.hoursTable!);
+    const key = dayKeys[nowIn(tz).dayIdx];
+    table.querySelector(`tr[data-day="${key}"]`)?.setAttribute('data-today', '');
+  });
+</script>

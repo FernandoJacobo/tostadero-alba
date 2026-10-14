@@ -1,0 +1,78 @@
+---
+/** Reseñas en carrusel con scroll-snap nativo; los botones avanzan una tarjeta y se desactivan en los extremos. */
+import { testimonials, ratingSummary } from '@/data/testimonios';
+import { testimoniosIntro as c } from '@/data/contenido';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import Icon from '@/components/ui/Icon.astro';
+---
+
+<section id="resenas" class="section bg-surface overflow-hidden" aria-labelledby="resenas-title">
+  <div class="container-x">
+    <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <SectionHeading id="resenas-title" eyebrow={c.eyebrow} title={c.title}>
+        <p class="mt-5 flex items-center gap-3">
+          <span class="text-heading font-serif text-4xl font-semibold tabular-nums">{ratingSummary.value.toFixed(1)}</span>
+          <span class="flex text-[#d08a3e]" aria-hidden="true">
+            {[0, 1, 2, 3, 4].map(() => <Icon name="star" size={18} class="fill-current" />)}
+          </span>
+          <span class="text-muted text-sm">{ratingSummary.count} {ratingSummary.source}</span>
+        </p>
+      </SectionHeading>
+      <div class="flex gap-2" data-reveal>
+        <button type="button" class="btn btn-ghost size-12 p-0 disabled:opacity-40" aria-label="Reseña anterior" aria-controls="resenas-track" data-car-prev>
+          <Icon name="arrow-left" size={20} />
+        </button>
+        <button type="button" class="btn btn-ghost size-12 p-0 disabled:opacity-40" aria-label="Reseña siguiente" aria-controls="resenas-track" data-car-next>
+          <Icon name="arrow-right" size={20} />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    id="resenas-track"
+    class="no-scrollbar mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-[max(1rem,calc((100vw-78rem)/2+2.5rem))] scroll-px-[max(1rem,calc((100vw-78rem)/2+2.5rem))] pb-4 focus-visible:outline-offset-[-3px]"
+    tabindex="0"
+    role="region"
+    aria-label="Reseñas de clientes, desplázate horizontalmente"
+    data-car-track
+  >
+    {
+      testimonials.map((t) => (
+        <figure class="card shadow-soft flex w-[min(86vw,24rem)] shrink-0 snap-start flex-col p-7">
+          <span class="text-caramel font-serif text-6xl leading-[0.5]" aria-hidden="true">“</span>
+          <blockquote class="text-heading mt-4 flex-1 font-serif text-[1.2rem] leading-relaxed">{t.quote}</blockquote>
+          <figcaption class="border-border mt-6 flex items-center justify-between gap-3 border-t pt-5">
+            <span>
+              <span class="text-heading block font-semibold">{t.name}</span>
+              <span class="text-muted text-sm">{t.detail}</span>
+            </span>
+            <span class="flex text-[#d08a3e]" role="img" aria-label={`${t.rating} de 5 estrellas`}>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <Icon name="star" size={15} class={n <= t.rating ? 'fill-current' : 'opacity-30'} />
+              ))}
+            </span>
+          </figcaption>
+        </figure>
+      ))
+    }
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-car-track]').forEach((track) => {
+    const section = track.closest('section')!;
+    const prev = section.querySelector<HTMLButtonElement>('[data-car-prev]')!;
+    const next = section.querySelector<HTMLButtonElement>('[data-car-next]')!;
+    const step = () => (track.firstElementChild as HTMLElement).offsetWidth + 20;
+    const update = () => {
+      prev.disabled = track.scrollLeft < 8;
+      next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 8;
+    };
+    prev.addEventListener('click', () => track.scrollBy({ left: -step() }));
+    next.addEventListener('click', () => track.scrollBy({ left: step() }));
+    track.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  });
+</script>

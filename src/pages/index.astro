@@ -8,6 +8,9 @@ import Menu from '@/components/sections/Menu.astro';
 import Granos from '@/components/sections/Granos.astro';
 import Talleres from '@/components/sections/Talleres.astro';
 import Galeria from '@/components/sections/Galeria.astro';
+import Testimonios from '@/components/sections/Testimonios.astro';
+import Reservacion from '@/components/sections/Reservacion.astro';
+import Ubicacion from '@/components/sections/Ubicacion.astro';
 ---
 
 <BaseLayout home jsonLd={(og) => [businessSchema(og)]}>
@@ -18,4 +21,7 @@ import Galeria from '@/components/sections/Galeria.astro';
   <Granos />
   <Talleres />
   <Galeria />
+  <Testimonios />
+  <Reservacion />
+  <Ubicacion />
 </BaseLayout>

@@ -1,0 +1,46 @@
+---
+import { reservaIntro as c } from '@/data/contenido';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import ReservationForm from '@/components/islands/ReservationForm.astro';
+import Photo from '@/components/ui/Photo.astro';
+import Icon from '@/components/ui/Icon.astro';
+import interior from '@/assets/photos/interior-luz.jpg';
+---
+
+<section id="reservar" class="section relative" aria-labelledby="reservar-title">
+  <div class="container-x grid gap-12 lg:grid-cols-[1fr_1.15fr] lg:gap-16">
+    <div>
+      <SectionHeading id="reservar-title" eyebrow={c.eyebrow} title={c.title} lead={c.lead} />
+      <ul class="mt-8 space-y-3" data-stagger>
+        {
+          c.notes.map((n) => (
+            <li class="flex items-start gap-3">
+              <span class="bg-olive-soft text-olive mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full">
+                <Icon name="check" size={16} strokeWidth={2.5} />
+              </span>
+              {n}
+            </li>
+          ))
+        }
+      </ul>
+      <Photo
+        src={interior}
+        alt="Terraza luminosa con lámparas de ratán, plantas y mesas listas para recibir clientes"
+        ratio="16 / 10"
+        sizes="(min-width: 1024px) 520px, 92vw"
+        class="mt-10 hidden rounded-[2rem_2rem_2rem_6rem] lg:block"
+        zoom
+      />
+    </div>
+
+    <div class="card shadow-lift p-5 sm:p-8 lg:p-10" data-reveal>
+      <h3 class="flex items-center gap-2.5">
+        <Icon name="calendar-heart" size={24} class="text-caramel-text" /> Tu reservación
+      </h3>
+      <p class="text-muted mt-1 text-sm">Los campos con <span class="text-caramel-text">*</span> son obligatorios.</p>
+      <div class="mt-6">
+        <ReservationForm />
+      </div>
+    </div>
+  </div>
+</section>

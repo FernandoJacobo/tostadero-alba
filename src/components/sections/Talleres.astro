@@ -20,7 +20,7 @@ const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) =>
       {
         workshops.map((w) => {
           const left = w.capacity - w.booked;
-          const dateLong = fmt(w.date, { weekday: 'long', day: 'numeric', month: 'long' });
+          const dateLong = fmt(w.date, { weekday: 'long', day: 'numeric', month: 'long' }).replace(',', '');
           return (
             <li class="flex flex-col overflow-hidden rounded-[1.5rem] bg-white/[0.06] ring-1 ring-white/10">
               <div class="relative">

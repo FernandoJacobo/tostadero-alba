@@ -1,0 +1,270 @@
+---
+/**
+ * Formulario de reservación sin backend: valida en vivo, arma el mensaje y abre WhatsApp
+ * (con alternativa por correo). Los horarios disponibles se calculan con site.hours para la fecha elegida.
+ */
+import { site } from '@/config/site';
+import Icon from '@/components/ui/Icon.astro';
+
+const people = Array.from({ length: site.booking.maxPeople }, (_, i) => i + 1);
+const occasions = ['Ninguna en especial', 'Cumpleaños', 'Aniversario', 'Reunión de trabajo', 'Cita', 'Despedida', 'Otra'];
+const config = JSON.stringify({
+  hours: site.hours,
+  tz: site.timeZone,
+  booking: site.booking,
+  whatsapp: site.contact.whatsapp,
+  email: site.contact.email,
+  name: site.name,
+});
+---
+
+<form class="reservation-form space-y-5" novalidate data-reservation={config} aria-describedby="rf-nota">
+  <div>
+    <label for="rf-nombre" class="text-heading mb-1.5 block font-semibold">Nombre <span class="text-caramel-text" aria-hidden="true">*</span></label>
+    <input id="rf-nombre" name="nombre" type="text" class="field" autocomplete="name" required minlength="2" aria-describedby="rf-nombre-error" />
+    <p id="rf-nombre-error" class="field-error" hidden></p>
+  </div>
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div>
+      <label for="rf-personas" class="text-heading mb-1.5 block font-semibold">Personas <span class="text-caramel-text" aria-hidden="true">*</span></label>
+      <div class="relative">
+        <select id="rf-personas" name="personas" class="field appearance-none pr-11" required aria-describedby="rf-personas-error">
+          {people.map((n) => <option value={n} selected={n === 2}>{n === 1 ? '1 persona' : `${n} personas`}</option>)}
+          <option value="mas">Más de {site.booking.maxPeople}</option>
+        </select>
+        <Icon name="chevron-down" size={18} class="text-muted pointer-events-none absolute top-1/2 right-4 -translate-y-1/2" />
+      </div>
+      <p id="rf-personas-error" class="field-error" hidden></p>
+    </div>
+    <div>
+      <label for="rf-ocasion" class="text-heading mb-1.5 block font-semibold">Ocasión especial</label>
+      <div class="relative">
+        <select id="rf-ocasion" name="ocasion" class="field appearance-none pr-11">
+          {occasions.map((o) => <option value={o}>{o}</option>)}
+        </select>
+        <Icon name="chevron-down" size={18} class="text-muted pointer-events-none absolute top-1/2 right-4 -translate-y-1/2" />
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div>
+      <label for="rf-fecha" class="text-heading mb-1.5 block font-semibold">Fecha <span class="text-caramel-text" aria-hidden="true">*</span></label>
+      <input id="rf-fecha" name="fecha" type="date" class="field" required aria-describedby="rf-fecha-error" />
+      <p id="rf-fecha-error" class="field-error" hidden></p>
+    </div>
+    <div>
+      <label for="rf-hora" class="text-heading mb-1.5 block font-semibold">Hora <span class="text-caramel-text" aria-hidden="true">*</span></label>
+      <div class="relative">
+        <select id="rf-hora" name="hora" class="field appearance-none pr-11" required aria-describedby="rf-hora-error rf-hora-ayuda">
+          <option value="">Elige primero la fecha</option>
+        </select>
+        <Icon name="chevron-down" size={18} class="text-muted pointer-events-none absolute top-1/2 right-4 -translate-y-1/2" />
+      </div>
+      <p id="rf-hora-ayuda" class="text-muted mt-1.5 text-sm" data-hours-help>Horarios según el día elegido.</p>
+      <p id="rf-hora-error" class="field-error" hidden></p>
+    </div>
+  </div>
+
+  <div>
+    <label for="rf-comentarios" class="text-heading mb-1.5 block font-semibold">Comentarios <span class="text-muted font-normal">(opcional)</span></label>
+    <textarea
+      id="rf-comentarios"
+      name="comentarios"
+      rows="3"
+      maxlength="300"
+      class="field resize-y"
+      placeholder="Silla para bebé, mesa en terraza, alergias…"></textarea>
+  </div>
+
+  <div class="flex flex-col gap-3 pt-1 sm:flex-row">
+    <button type="submit" class="btn btn-wa flex-1 py-3.5 text-base">
+      <Icon name="whatsapp" size={20} /> Reservar por WhatsApp
+    </button>
+    <button type="button" class="btn btn-ghost py-3.5" data-mailto>
+      <Icon name="mail" size={18} /> Por correo
+    </button>
+  </div>
+
+  <p id="rf-nota" class="text-muted flex gap-2 text-sm">
+    <Icon name="shield-check" size={16} class="mt-0.5" />
+    <span>
+      No guardamos tus datos en este sitio: el mensaje se abre en tu WhatsApp o correo para que lo revises y lo envíes tú. <a
+        href="/aviso-de-privacidad"
+        class="text-caramel-text underline">Aviso de privacidad</a
+      >.
+    </span>
+  </p>
+
+  <div class="bg-olive-soft text-heading rounded-2xl p-4" role="status" aria-live="polite" data-status hidden></div>
+</form>
+
+<script>
+  import { bookingSlots, dayKeys, nowIn, toMinutes, type Hours } from '@/lib/hours';
+  import { formatTime } from '@/config/site';
+
+  interface Config {
+    hours: Hours;
+    tz: string;
+    booking: { maxPeople: number; lastSlotBeforeClose: number; slotMinutes: number };
+    whatsapp: string;
+    email: string;
+    name: string;
+  }
+
+  document.querySelectorAll<HTMLFormElement>('[data-reservation]').forEach((form) => {
+    const cfg = JSON.parse(form.dataset.reservation!) as Config;
+    const f = form.elements as HTMLFormControlsCollection & Record<string, HTMLInputElement & HTMLSelectElement>;
+    const fecha = f.namedItem('fecha') as HTMLInputElement;
+    const hora = f.namedItem('hora') as HTMLSelectElement;
+    const help = form.querySelector<HTMLElement>('[data-hours-help]')!;
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const touched = new Set<string>();
+
+    // Rango de fechas: de hoy (en la zona horaria del negocio) a 60 días
+    const today = nowIn(cfg.tz);
+    const addDays = (iso: string, n: number) => {
+      const d = new Date(`${iso}T12:00:00Z`);
+      d.setUTCDate(d.getUTCDate() + n);
+      return d.toISOString().slice(0, 10);
+    };
+    fecha.min = today.isoDate;
+    fecha.max = addDays(today.isoDate, 60);
+
+    const weekday = (iso: string) => new Date(`${iso}T12:00:00Z`).getUTCDay();
+    const longDate = (iso: string) =>
+      new Intl.DateTimeFormat('es-MX', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date(`${iso}T12:00:00Z`)).replace(',', '');
+
+    /** Horarios para la fecha elegida (si es hoy, solo los que faltan con 30 min de margen). */
+    const slotsFor = (iso: string) => {
+      const slots = bookingSlots(cfg.hours[dayKeys[weekday(iso)]] ?? [], cfg.booking.slotMinutes, cfg.booking.lastSlotBeforeClose);
+      return iso === nowIn(cfg.tz).isoDate ? slots.filter((s) => toMinutes(s) >= nowIn(cfg.tz).minutes + 30) : slots;
+    };
+
+    const fillHours = () => {
+      const previous = hora.value;
+      hora.innerHTML = '';
+      const add = (value: string, label: string) => hora.add(new Option(label, value));
+      if (!fecha.value) {
+        add('', 'Elige primero la fecha');
+        help.textContent = 'Horarios según el día elegido.';
+        return;
+      }
+      const slots = slotsFor(fecha.value);
+      if (!slots.length) {
+        add('', 'Sin horarios disponibles');
+        help.textContent = 'Ese día ya no hay horarios. Prueba con otra fecha.';
+        return;
+      }
+      add('', 'Selecciona una hora');
+      slots.forEach((s) => add(s, formatTime(s)));
+      if (slots.includes(previous)) hora.value = previous;
+      const day = cfg.hours[dayKeys[weekday(fecha.value)]];
+      help.textContent = `Abrimos de ${formatTime(day[0].open)} a ${formatTime(day.at(-1)!.close)}`;
+    };
+
+    const rules: Record<string, () => string> = {
+      nombre: () => {
+        const v = (f.namedItem('nombre') as HTMLInputElement).value.trim();
+        if (!v) return 'Escribe tu nombre.';
+        if (v.length < 2) return 'El nombre es muy corto.';
+        return '';
+      },
+      personas: () => ((f.namedItem('personas') as HTMLSelectElement).value ? '' : 'Elige cuántas personas.'),
+      fecha: () => {
+        const v = fecha.value;
+        if (!v) return 'Elige una fecha.';
+        if (v < fecha.min) return 'La fecha ya pasó.';
+        if (v > fecha.max) return 'Reservamos con hasta 60 días de anticipación.';
+        if (!(cfg.hours[dayKeys[weekday(v)]] ?? []).length) return 'Ese día está cerrado.';
+        if (!slotsFor(v).length) return 'Ese día ya no hay horarios disponibles.';
+        return '';
+      },
+      hora: () => (hora.value ? '' : 'Elige una hora.'),
+    };
+
+    const validate = (name: string, show = touched.has(name)) => {
+      const msg = rules[name]();
+      const field = f.namedItem(name) as HTMLElement;
+      const err = form.querySelector<HTMLElement>(`#rf-${name}-error`)!;
+      if (show) {
+        field.setAttribute('aria-invalid', msg ? 'true' : 'false');
+        err.textContent = msg;
+        err.hidden = !msg;
+      }
+      return !msg;
+    };
+
+    // Validación en vivo: al salir del campo y, después, mientras se corrige
+    Object.keys(rules).forEach((name) => {
+      const field = f.namedItem(name) as HTMLElement;
+      field.addEventListener('blur', () => {
+        touched.add(name);
+        validate(name);
+      });
+      field.addEventListener('input', () => validate(name));
+      field.addEventListener('change', () => {
+        touched.add(name);
+        validate(name);
+      });
+    });
+    fecha.addEventListener('change', () => {
+      fillHours();
+      if (touched.has('hora')) validate('hora');
+    });
+
+    const message = () => {
+      const data = new FormData(form);
+      const personas = String(data.get('personas'));
+      const ocasion = String(data.get('ocasion'));
+      const comentarios = String(data.get('comentarios') ?? '').trim();
+      const lines = [
+        `¡Hola, ${cfg.name}! Quiero reservar una mesa:`,
+        '',
+        `👤 Nombre: ${String(data.get('nombre')).trim()}`,
+        `👥 Personas: ${personas === 'mas' ? `más de ${cfg.booking.maxPeople} (grupo grande)` : personas}`,
+        `📅 Fecha: ${longDate(String(data.get('fecha')))}`,
+        `🕐 Hora: ${formatTime(String(data.get('hora')))}`,
+      ];
+      if (ocasion && ocasion !== 'Ninguna en especial') lines.push(`🎉 Ocasión: ${ocasion}`);
+      if (comentarios) lines.push(`📝 Comentarios: ${comentarios}`);
+      lines.push('', '¿Me confirman disponibilidad? ¡Gracias!');
+      return lines.join('\n');
+    };
+
+    const validateAll = () => {
+      Object.keys(rules).forEach((n) => touched.add(n));
+      const results = Object.keys(rules).map((n) => [n, validate(n, true)] as const);
+      const firstInvalid = results.find(([, ok]) => !ok);
+      if (firstInvalid) {
+        (f.namedItem(firstInvalid[0]) as HTMLElement).focus();
+        status.hidden = true;
+        return false;
+      }
+      return true;
+    };
+
+    const done = (channel: string) => {
+      status.hidden = false;
+      status.innerHTML = '';
+      const strong = document.createElement('strong');
+      strong.textContent = '¡Listo! ';
+      status.append(strong, `Abrimos tu mensaje en ${channel}. Envíalo y te confirmamos en minutos dentro del horario de atención.`);
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!validateAll()) return;
+      window.open(`https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent(message())}`, '_blank', 'noopener');
+      done('WhatsApp');
+    });
+
+    form.querySelector('[data-mailto]')!.addEventListener('click', () => {
+      if (!validateAll()) return;
+      const subject = `Reservación · ${longDate(fecha.value)} · ${formatTime(hora.value)}`;
+      window.location.href = `mailto:${cfg.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message())}`;
+      done('tu correo');
+    });
+  });
+</script>

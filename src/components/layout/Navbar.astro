@@ -148,10 +148,11 @@ const href = (h: string) => (home ? h : `/${h}`);
   });
   dialog.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => dialog.close()));
 
-  // Scroll-spy: marca el enlace de la sección que ocupa la parte central de la pantalla
+  // Scroll-spy: marca el enlace de la sección que ocupa la franja central de la pantalla.
+  // Se observan todas las secciones; si la actual no está en el menú (hero, reseñas…), ninguno queda activo.
   const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-spy]')];
-  const sections = links.map((l) => document.getElementById(l.dataset.spy!)).filter((s): s is HTMLElement => !!s);
-  if (sections.length && 'IntersectionObserver' in window) {
+  const sections = [...document.querySelectorAll<HTMLElement>('main section[id]')];
+  if (links.length && sections.length && 'IntersectionObserver' in window) {
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
@@ -162,12 +163,5 @@ const href = (h: string) => (home ? h : `/${h}`);
       { rootMargin: '-45% 0px -50% 0px' },
     );
     sections.forEach((s) => io.observe(s));
-    // Al volver al hero, ningún enlace activo
-    const hero = document.getElementById('inicio');
-    if (hero) {
-      new IntersectionObserver(([e]) => e.isIntersecting && links.forEach((l) => l.removeAttribute('aria-current')), {
-        rootMargin: '-45% 0px -50% 0px',
-      }).observe(hero);
-    }
   }
 </script>
