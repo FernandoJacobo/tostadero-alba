@@ -1,0 +1,65 @@
+---
+import { site } from '@/config/site';
+import { historia as c } from '@/data/contenido';
+import Photo from '@/components/ui/Photo.astro';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+---
+
+<section id="historia" class="section relative overflow-hidden" aria-labelledby="historia-title">
+  <div class="container-x grid items-center gap-14 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
+    <div class="relative order-2 lg:order-1" data-reveal>
+      <Photo
+        src={c.image}
+        alt={c.imageAlt}
+        ratio="4 / 5"
+        sizes="(min-width: 1024px) 520px, 88vw"
+        zoom
+        class="shadow-lift w-[88%] rounded-[2.5rem_2.5rem_2.5rem_8rem]"
+      />
+      <Photo
+        src={c.secondImage}
+        alt={c.secondImageAlt}
+        ratio="1 / 1"
+        sizes="(min-width: 1024px) 260px, 45vw"
+        class="border-bg shadow-lift absolute right-0 -bottom-8 w-[46%] rounded-full border-[6px]"
+      />
+      <span
+        class="bg-olive absolute top-6 -left-2 rotate-[-6deg] rounded-full px-4 py-2 text-xs font-bold tracking-[0.18em] text-white uppercase shadow-lg sm:left-4"
+      >
+        Desde {site.foundingYear}
+      </span>
+    </div>
+
+    <div class="order-1 lg:order-2">
+      <SectionHeading id="historia-title" eyebrow={c.eyebrow} title={c.title} />
+      <div class="text-muted mt-6 max-w-xl space-y-4 text-[1.075rem]" data-reveal style="--reveal-delay:100ms">
+        {c.paragraphs.map((p) => <p>{p}</p>)}
+      </div>
+      <figure class="border-caramel mt-8 max-w-xl border-l-2 pl-5" data-reveal style="--reveal-delay:160ms">
+        <blockquote class="text-heading font-serif text-2xl italic">“{c.quote}”</blockquote>
+        <figcaption class="text-muted mt-2 text-sm">— {c.quoteAuthor}</figcaption>
+      </figure>
+
+      <dl class="border-border mt-10 grid grid-cols-3 gap-4 border-t pt-8" data-stagger="120">
+        {
+          site.stats.map((s) => (
+            <div>
+              <dt class="text-muted order-2 mt-1 text-sm leading-snug">{s.label}</dt>
+              <dd class="text-heading -order-1 font-serif text-[clamp(1.6rem,1.1rem+2.2vw,3rem)] leading-none font-semibold tabular-nums">
+                <span data-count={s.value}>{s.value.toLocaleString('es-MX')}</span>
+                {'suffix' in s && <span class="text-caramel-text">{s.suffix}</span>}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+</section>
+
+<style>
+  dl > div {
+    display: flex;
+    flex-direction: column;
+  }
+</style>

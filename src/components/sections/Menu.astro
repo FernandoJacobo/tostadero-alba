@@ -1,0 +1,18 @@
+---
+import { site } from '@/config/site';
+import { menuIntro as c } from '@/data/contenido';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import MenuTabs from '@/components/islands/MenuTabs.astro';
+---
+
+<section id="menu" class="section bg-surface relative" aria-labelledby="menu-title">
+  <div class="container-x">
+    <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <SectionHeading id="menu-title" eyebrow={c.eyebrow} title={c.title} lead={c.lead} />
+      <p class="text-muted text-sm md:max-w-xs md:text-right" data-reveal>{site.payments}</p>
+    </div>
+    <div class="mt-10">
+      <MenuTabs />
+    </div>
+  </div>
+</section>

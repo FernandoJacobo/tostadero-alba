@@ -1,0 +1,162 @@
+---
+/**
+ * Menú con pestañas accesibles (patrón ARIA tabs con activación automática):
+ * flechas ←/→, Inicio/Fin, clic y touch. Sin JS se muestran todas las categorías una tras otra.
+ */
+import { menu, tagLabels, type MenuTag } from '@/data/menu';
+import { formatMXN } from '@/config/site';
+import Photo from '@/components/ui/Photo.astro';
+import Icon from '@/components/ui/Icon.astro';
+
+const tagIcon: Record<MenuTag, string> = {
+  favorito: 'star',
+  vegano: 'leaf',
+  'sin-gluten': 'wheat-off',
+  temporada: 'calendar-days',
+};
+---
+
+<div class="menu-tabs" data-tabs>
+  <div class="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 no-scrollbar" data-reveal>
+    <div role="tablist" aria-label="Categorías del menú" class="bg-surface-alt inline-flex min-w-max gap-1 rounded-full p-1.5">
+      {
+        menu.map((cat, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`tab-${cat.id}`}
+            aria-controls={`panel-${cat.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+            class="text-muted hover:text-heading aria-selected:bg-espresso aria-selected:text-on-espresso dark:aria-selected:bg-caramel dark:aria-selected:text-on-caramel min-h-11 rounded-full px-5 text-[0.95rem] font-semibold whitespace-nowrap transition-colors"
+          >
+            {cat.label}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  {
+    menu.map((cat, i) => (
+      <div
+        role="tabpanel"
+        id={`panel-${cat.id}`}
+        aria-labelledby={`tab-${cat.id}`}
+        tabindex="0"
+        data-inactive={i === 0 ? undefined : ''}
+        class="tab-panel mt-10 grid gap-10 lg:grid-cols-[18rem_1fr] lg:gap-14"
+      >
+        <aside class="hidden lg:block">
+          <div class="sticky top-28">
+            <Photo
+              src={cat.image}
+              alt={cat.imageAlt}
+              ratio="3 / 4"
+              sizes="288px"
+              widths={[288, 576]}
+              class="shadow-soft rounded-[1.75rem_1.75rem_6rem_1.75rem]"
+            />
+          </div>
+        </aside>
+
+        <div>
+          <h3 class="sr-only">{cat.label}</h3>
+          <p class="text-muted max-w-2xl">{cat.intro}</p>
+          <ul class="mt-8 grid gap-x-12 md:grid-cols-2">
+            {cat.items.map((item) => (
+              <li class="menu-item border-border border-b py-5">
+                <div class="flex items-baseline gap-3">
+                  <h4 class="text-heading font-serif text-[1.2rem] leading-snug font-semibold">{item.name}</h4>
+                  <span class="leader border-border mb-1.5 min-w-6 flex-1 border-b-2 border-dotted" aria-hidden="true" />
+                  <p class="price shrink-0 text-[1.05rem]">
+                    <span class="sr-only">Precio: </span>
+                    {formatMXN(item.price)}
+                  </p>
+                </div>
+                <p class="text-muted mt-1.5 text-[0.95rem] leading-relaxed">
+                  {item.description}
+                  {item.unit && <span class="text-heading/70 ml-1 text-sm font-medium whitespace-nowrap">· {item.unit}</span>}
+                </p>
+                {item.tags && (
+                  <ul class="mt-2.5 flex flex-wrap gap-1.5" aria-label="Etiquetas">
+                    {item.tags.map((t) => (
+                      <li class:list={['tag', t === 'favorito' || t === 'temporada' ? 'tag-caramel' : 'tag-olive']}>
+                        <Icon name={tagIcon[t]} size={12} strokeWidth={2.5} />
+                        {tagLabels[t]}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+          {cat.note && (
+            <p class="text-muted mt-6 flex items-center gap-2 text-sm">
+              <Icon name="info" size={16} /> {cat.note}
+            </p>
+          )}
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  /* Con JS, solo se ve la pestaña activa */
+  :global(.js) .tab-panel[data-inactive] {
+    display: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .tab-panel:not([data-inactive]) .menu-item {
+      animation: item-in 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    }
+    .tab-panel .menu-item:nth-child(2) { animation-delay: 40ms; }
+    .tab-panel .menu-item:nth-child(3) { animation-delay: 80ms; }
+    .tab-panel .menu-item:nth-child(4) { animation-delay: 120ms; }
+    .tab-panel .menu-item:nth-child(5) { animation-delay: 160ms; }
+    .tab-panel .menu-item:nth-child(6) { animation-delay: 200ms; }
+    .tab-panel .menu-item:nth-child(7) { animation-delay: 240ms; }
+    .tab-panel .menu-item:nth-child(8) { animation-delay: 280ms; }
+  }
+  @keyframes item-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((root) => {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = tabs.map((t) => document.getElementById(t.getAttribute('aria-controls')!)!);
+
+    const select = (index: number, focus = false) => {
+      tabs.forEach((t, i) => {
+        const on = i === index;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        panels[i].toggleAttribute('data-inactive', !on);
+      });
+      if (focus) tabs[index].focus();
+      tabs[index].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    };
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(i));
+      tab.addEventListener('keydown', (e) => {
+        const keys: Record<string, number> = {
+          ArrowRight: (i + 1) % tabs.length,
+          ArrowLeft: (i - 1 + tabs.length) % tabs.length,
+          Home: 0,
+          End: tabs.length - 1,
+        };
+        if (e.key in keys) {
+          e.preventDefault();
+          select(keys[e.key], true);
+        }
+      });
+    });
+  });
+</script>

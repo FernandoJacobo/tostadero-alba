@@ -33,9 +33,15 @@ const {
   position = 'center',
   zoom = false,
 } = Astro.props;
+
+// Si quien lo usa ya lo posiciona (absolute/fixed), no se agrega `relative` (chocaría con su clase).
+const isPositioned = className.split(/\s+/).some((c) => c === 'absolute' || c === 'fixed');
 ---
 
-<div class:list={['img-fallback relative overflow-hidden', zoom && 'zoom-img', className]} style={ratio ? `aspect-ratio: ${ratio}` : undefined}>
+<div
+  class:list={['img-fallback overflow-hidden', !isPositioned && 'relative', zoom && 'zoom-img', className]}
+  style={ratio ? `aspect-ratio: ${ratio}` : undefined}
+>
   <LogoMark size={44} class="text-caramel/40 absolute inset-0 m-auto" />
   <Picture
     src={src}

@@ -1,7 +1,7 @@
 /**
  * Textos de cada sección de la landing. Las palabras entre *asteriscos* se muestran en cursiva serif.
  */
-import hero from '@/assets/photos/hero.jpg';
+import hero from '@/assets/photos/hero-alt.jpg';
 import tostador from '@/assets/photos/tostador.jpg';
 import latteMano from '@/assets/photos/latte-mano.jpg';
 
@@ -10,7 +10,7 @@ export const heroContent = {
   title: 'Del grano a tu taza, *sin prisa.*',
   lead: 'Tostamos en casa cafés de pequeños productores de Chiapas, Veracruz y Oaxaca. Ven por un filtrado, quédate por el pan recién horneado.',
   image: hero,
-  imageAlt: 'Taza de café humeante sobre una mesa de madera con luz cálida de ventana',
+  imageAlt: 'Taza de café humeante junto a un libro abierto en el marco de una ventana con luz de mañana',
   seal: 'Tostado en casa · Desde 2016 · ',
 };
 

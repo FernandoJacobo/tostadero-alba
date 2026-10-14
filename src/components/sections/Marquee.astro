@@ -1,0 +1,49 @@
+---
+/** Cinta con palabras que se desplaza suavemente. Decorativa: el contenido duplicado se oculta a lectores de pantalla. */
+import { marquee } from '@/data/contenido';
+import LogoMark from '@/components/ui/LogoMark.astro';
+
+interface Props {
+  tone?: 'caramel' | 'espresso';
+}
+const { tone = 'caramel' } = Astro.props;
+---
+
+<div
+  class:list={[
+    'marquee overflow-hidden border-y py-5',
+    tone === 'caramel' ? 'bg-caramel text-on-caramel border-black/10 [--logo-cut:var(--caramel)]' : 'bg-espresso text-on-espresso border-white/10 [--logo-cut:var(--espresso)]',
+  ]}
+>
+  <p class="sr-only">{marquee.join(' · ')}</p>
+  <div class="marquee-track flex w-max" aria-hidden="true">
+    {
+      [0, 1].map(() => (
+        <ul class="flex shrink-0 items-center">
+          {marquee.map((w) => (
+            <li class="flex items-center gap-8 px-4 font-serif text-[clamp(1.6rem,1.2rem+1.6vw,2.6rem)] leading-none italic">
+              {w}
+              <LogoMark size={26} class="opacity-80" />
+            </li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    .marquee-track {
+      animation: marquee 38s linear infinite;
+    }
+    .marquee:hover .marquee-track {
+      animation-play-state: paused;
+    }
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+</style>

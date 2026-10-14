@@ -1,8 +1,15 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { businessSchema } from '@/lib/schema';
+import Hero from '@/components/sections/Hero.astro';
+import Historia from '@/components/sections/Historia.astro';
+import Marquee from '@/components/sections/Marquee.astro';
+import Menu from '@/components/sections/Menu.astro';
 ---
 
 <BaseLayout home jsonLd={(og) => [businessSchema(og)]}>
-  <section id="inicio" class="bg-espresso text-on-espresso min-h-dvh"></section>
+  <Hero />
+  <Historia />
+  <Marquee />
+  <Menu />
 </BaseLayout>

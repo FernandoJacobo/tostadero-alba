@@ -1,0 +1,169 @@
+---
+/** Hero a pantalla completa: foto con parallax leve, título editorial, doble CTA, "Abierto ahora" y sello con vapor animado. */
+import { site } from '@/config/site';
+import { heroContent as c } from '@/data/contenido';
+import Photo from '@/components/ui/Photo.astro';
+import Title from '@/components/ui/Title.astro';
+import Icon from '@/components/ui/Icon.astro';
+import OpenNow from '@/components/ui/OpenNow.astro';
+---
+
+<section id="inicio" class="bg-espresso relative isolate flex min-h-[100svh] items-end overflow-hidden text-white" aria-labelledby="hero-title">
+  <div class="absolute inset-0 -z-10 will-change-transform" data-parallax>
+    <Photo
+      src={c.image}
+      alt={c.imageAlt}
+      priority
+      widths={[480, 720, 960, 1280, 1600, 1920]}
+      sizes="100vw"
+      class="absolute inset-0 !bg-[#2b1d16]"
+      position="58% 62%"
+    />
+  </div>
+  <!-- Degradados para legibilidad del texto -->
+  <div class="absolute inset-0 -z-10 bg-gradient-to-t from-[#140d09]/95 via-[#140d09]/60 to-[#140d09]/10 md:via-[#140d09]/25" aria-hidden="true"></div>
+  <div class="absolute inset-x-0 top-0 -z-10 h-44 bg-gradient-to-b from-[#140d09]/70 to-transparent" aria-hidden="true"></div>
+  <div class="absolute inset-0 -z-10 hidden bg-gradient-to-r from-[#140d09]/75 via-[#140d09]/20 to-transparent md:block" aria-hidden="true"></div>
+
+  <div class="container-x relative w-full pt-32 pb-36 md:pb-20 lg:pb-24">
+    <div class="max-w-3xl">
+      <OpenNow tone="dark" />
+      <p class="mt-6 text-[0.8rem] font-bold tracking-[0.2em] text-[#e9c9a6] uppercase">{c.eyebrow}</p>
+      <Title as="h1" id="hero-title" text={c.title} class="hero-title mt-4 !text-white" />
+      <p class="mt-6 max-w-xl text-[clamp(1.05rem,1rem+0.4vw,1.3rem)] text-[#efe4d6]">{c.lead}</p>
+      <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+        <a href="#menu" class="btn btn-primary">
+          <Icon name="coffee" size={20} /> Ver menú
+        </a>
+        <a href={site.cta.href} class="btn btn-light backdrop-blur-sm">
+          <Icon name="calendar-heart" size={20} /> {site.cta.label}
+        </a>
+      </div>
+    </div>
+
+    <!-- Sello: texto circular girando y taza con vapor animado -->
+    <div class="seal pointer-events-none absolute top-28 right-6 hidden size-32 sm:block md:top-auto md:bottom-20 md:size-40 lg:right-10 lg:size-44" aria-hidden="true">
+      <svg viewBox="0 0 200 200" class="seal-text absolute inset-0 size-full">
+        <defs>
+          <path id="seal-circle" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"></path>
+        </defs>
+        <text fill="#efe4d6" font-size="15.5" font-weight="700" letter-spacing="5.2" style="text-transform:uppercase">
+          <textPath href="#seal-circle">{c.seal}</textPath>
+        </text>
+      </svg>
+      <svg viewBox="0 0 200 200" class="absolute inset-0 size-full">
+        <circle cx="100" cy="100" r="54" fill="#c27a3e"></circle>
+        <g fill="none" stroke="#2b1d16" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <!-- taza -->
+          <path d="M72 100h46v14a20 20 0 0 1-20 20h-6a20 20 0 0 1-20-20z" fill="#f6efe6"></path>
+          <path d="M118 104h6a9 9 0 0 1 0 18h-6"></path>
+          <path d="M66 142h58"></path>
+        </g>
+        <!-- vapor -->
+        <g fill="none" stroke="#f6efe6" stroke-width="4.5" stroke-linecap="round" class="steam">
+          <path d="M84 90c-6-6 6-10 0-18"></path>
+          <path d="M96 88c-6-6 6-10 0-18"></path>
+          <path d="M108 90c-6-6 6-10 0-18"></path>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <a
+    href="#historia"
+    class="absolute bottom-4 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-xs font-semibold tracking-[0.2em] text-[#e9c9a6] uppercase md:flex"
+  >
+    Desliza
+    <span class="scroll-line block h-10 w-px bg-current" aria-hidden="true"></span>
+  </a>
+</section>
+
+<style>
+  .hero-title {
+    font-size: clamp(2.9rem, 1.6rem + 6.4vw, 7rem);
+    font-weight: 500;
+    line-height: 0.98;
+  }
+  .hero-title :global(em) {
+    color: #e9b98a;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .seal-text {
+      animation: spin 28s linear infinite;
+    }
+    .steam path {
+      animation: steam 3.2s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: bottom center;
+    }
+    .steam path:nth-child(2) {
+      animation-delay: 0.6s;
+    }
+    .steam path:nth-child(3) {
+      animation-delay: 1.2s;
+    }
+    .scroll-line {
+      transform-origin: top;
+      animation: scroll-line 2.2s cubic-bezier(0.6, 0, 0.3, 1) infinite;
+    }
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes steam {
+    0% {
+      opacity: 0;
+      transform: translateY(6px) scaleY(0.8);
+    }
+    35% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-14px) scaleY(1.1);
+    }
+  }
+  @keyframes scroll-line {
+    0% {
+      transform: scaleY(0);
+    }
+    50% {
+      transform: scaleY(1);
+      transform-origin: top;
+    }
+    51% {
+      transform-origin: bottom;
+    }
+    100% {
+      transform: scaleY(0);
+      transform-origin: bottom;
+    }
+  }
+</style>
+
+<script>
+  // Parallax leve: la foto se desplaza más lento que el scroll, solo mientras el hero está visible
+  const layer = document.querySelector<HTMLElement>('[data-parallax]');
+  if (layer && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const y = window.scrollY;
+      if (y > window.innerHeight) return;
+      layer.style.transform = `translate3d(0, ${y * 0.28}px, 0) scale(1.06)`;
+    };
+    layer.style.transform = 'scale(1.06)';
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+  }
+</script>
